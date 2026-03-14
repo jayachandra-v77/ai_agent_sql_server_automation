@@ -1,6 +1,7 @@
-langchain
-langchain-openai
-langchain-community
-sqlalchemy
+fastapi
+uvicorn
 python-dotenv
+sqlalchemy
 pyodbc
+langchain_openai
+langchain_community

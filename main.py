@@ -4,6 +4,9 @@ from langchain_openai import ChatOpenAI
 from sqlalchemy import create_engine
 from langchain_community.utilities import SQLDatabase
 from langchain_community.agent_toolkits import create_sql_agent
+from fastapi import FastAPI
+from pydantic import BaseModel
+from fastapi.responses import FileResponse
 
 
 #load environmental variables
@@ -37,27 +40,32 @@ llm = ChatOpenAI(
     api_key=OPENAI_API_KEY
 )
 
-agent = create_sql_agent(
+sql_agent = create_sql_agent(
     llm = llm,
     db=db,
     verbose=False
 )
 
 
-# Run query loop
 
-while True:
-    question = input("\nPlease ask your question(or type exit): ")
+# FastAPI
+app = FastAPI()
 
-    if question.lower().strip() == "exit":
-        print("Bye for now..!!")
-        break
+class Question(BaseModel):
+    question: str
 
+
+@app.post("/ask")
+def ask_question(q: Question):
     try:
-        response = agent.invoke(question)
-
-        print("\nAnswer")
-        print(response["output"])
-
+        response = sql_agent.invoke(q.question)
+        return {"answer": response["output"]}
     except Exception as e:
-        print("\nError:", e)
+        return {"error": str(e)}
+    
+
+# Serve index.html from root
+@app.get("/")
+def get_index():
+    index_path = os.path.join(os.path.dirname(__file__), "index.html")
+    return FileResponse(index_path)
