@@ -1,4 +1,4 @@
-name: Deploy Application Docker Image to EC2 instane
+name: Deploy Docker Image to EC2
 
 on:
   push:
@@ -11,8 +11,8 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      AWS_REGION: us-east-1             # Change to your AWS region
-      ECR_REPOSITORY: ai-sql-bot # Name of your ECR repo
+      AWS_REGION: us-east-1
+      ECR_REPOSITORY: ai-sql-bot
       IMAGE_TAG: ${{ github.sha }}
 
     steps:
@@ -20,7 +20,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # 2️⃣ Configure AWS credentials
+      # 2️⃣ Configure AWS credentials (for ECR push/pull)
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -28,7 +28,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-      # 3️⃣ Log in to Amazon ECR
+      # 3️⃣ Login to ECR
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
@@ -38,7 +38,7 @@ jobs:
         run: |
           docker build -t $ECR_REPOSITORY:${IMAGE_TAG} .
 
-      # 5️⃣ Tag Docker image
+      # 5️⃣ Tag Docker image for ECR
       - name: Tag Docker image
         run: |
           docker tag $ECR_REPOSITORY:${IMAGE_TAG} ${{ steps.login-ecr.outputs.registry }}/${ECR_REPOSITORY}:${IMAGE_TAG}
@@ -48,11 +48,20 @@ jobs:
         run: |
           docker push ${{ steps.login-ecr.outputs.registry }}/${ECR_REPOSITORY}:${IMAGE_TAG}
 
-      # 7️⃣ Update ECS service
-      - name: Deploy to ECS
-        run: |
-          aws ecs update-service \
-            --cluster my-ecs-cluster \
-            --service my-ecs-service \
-            --force-new-deployment \
-            --region $AWS_REGION
+      # 7️⃣ Deploy to EC2
+      - name: Deploy Docker container on EC2
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            echo "Pulling Docker image from ECR..."
+            docker pull ${{ steps.login-ecr.outputs.registry }}/${ECR_REPOSITORY}:${IMAGE_TAG}
+            
+            echo "Stopping old container..."
+            docker stop sqlbot || true
+            docker rm sqlbot || true
+
+            echo "Starting new container..."
+            docker run -d --name sqlbot -p 80:80 ${{ steps.login-ecr.outputs.registry }}/${ECR_REPOSITORY}:${IMAGE_TAG}
