@@ -1,4 +1,4 @@
-name: Deploy Docker Image to EC2
+name: Build and Push Docker Image to ECR
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-and-deploy:
+  build-and-push:
     runs-on: ubuntu-latest
 
     env:
@@ -16,11 +16,9 @@ jobs:
       IMAGE_TAG: ${{ github.sha }}
 
     steps:
-      # 1️⃣ Checkout repo
-      - name: Checkout repository
+      - name: Checkout repo
         uses: actions/checkout@v3
 
-      # 2️⃣ Configure AWS credentials (for ECR push/pull)
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -28,40 +26,15 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-      # 3️⃣ Login to ECR
-      - name: Login to Amazon ECR
+      - name: Login to ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
-      # 4️⃣ Build Docker image
       - name: Build Docker image
-        run: |
-          docker build -t $ECR_REPOSITORY:${IMAGE_TAG} .
+        run: docker build -t $ECR_REPOSITORY:${IMAGE_TAG} .
 
-      # 5️⃣ Tag Docker image for ECR
       - name: Tag Docker image
-        run: |
-          docker tag $ECR_REPOSITORY:${IMAGE_TAG} ${{ steps.login-ecr.outputs.registry }}/${ECR_REPOSITORY}:${IMAGE_TAG}
+        run: docker tag $ECR_REPOSITORY:${IMAGE_TAG} ${{ steps.login-ecr.outputs.registry }}/${ECR_REPOSITORY}:${IMAGE_TAG}
 
-      # 6️⃣ Push Docker image to ECR
       - name: Push Docker image to ECR
-        run: |
-          docker push ${{ steps.login-ecr.outputs.registry }}/${ECR_REPOSITORY}:${IMAGE_TAG}
-
-      # 7️⃣ Deploy to EC2
-      - name: Deploy Docker container on EC2
-        uses: appleboy/ssh-action@v0.1.7
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ec2-user
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            echo "Pulling Docker image from ECR..."
-            docker pull ${{ steps.login-ecr.outputs.registry }}/${ECR_REPOSITORY}:${IMAGE_TAG}
-            
-            echo "Stopping old container..."
-            docker stop sqlbot || true
-            docker rm sqlbot || true
-
-            echo "Starting new container..."
-            docker run -d --name sqlbot -p 80:80 ${{ steps.login-ecr.outputs.registry }}/${ECR_REPOSITORY}:${IMAGE_TAG}
+        run: docker push ${{ steps.login-ecr.outputs.registry }}/${ECR_REPOSITORY}:${IMAGE_TAG}
