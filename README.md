@@ -3,9 +3,8 @@
 This project allows you to interact with your SQL Server database using natural language.
 Instead of writing SQL queries manually, you can ask questions in plain English, and the AI will generate and execute SQL queries automatically.
 
----
 
-# 📌 Features
+### Features
 
 * Connect to SQL Server using Windows Authentication
 * Ask questions in natural language
@@ -14,9 +13,7 @@ Instead of writing SQL queries manually, you can ask questions in plain English,
 * Uses OpenAI GPT model for intelligent responses
 * Beginner-friendly project structure
 
----
-
-# 🛠️ Technologies Used
+### Technologies Used
 
 * Python
 * LangChain
