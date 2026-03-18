@@ -43,23 +43,10 @@ AI_SQL_AUTOMATION/
 
 You can ask questions like:
 
-```
-List all tables
-```
-
-```
-Show top 5 customers by sales
-```
-
-```
-Count total orders
-```
-
-```
-Show total revenue
-```
-
----
+-- List all tables
+-- Show top 5 customers by sales
+-- Count total orders
+-- Show total revenue
 
 # 🧠 How it works
 
