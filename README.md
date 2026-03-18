@@ -35,7 +35,7 @@ AI_SQL_AUTOMATION/
 └── README.md
 
 
-# 💬 Example Questions
+### Example Questions
 
 You can ask questions like:
 
@@ -44,7 +44,7 @@ You can ask questions like:
 -- Count total orders
 -- Show total revenue
 
-# 🧠 How it works
+### How it works
 
 1. User enters a question
 2. LangChain SQL Agent converts it into SQL query
@@ -53,7 +53,7 @@ You can ask questions like:
 
 ---
 
-# 🔒 Requirements
+### Requirements
 
 * Python 
 * SQL Server installed
@@ -135,10 +135,7 @@ DATABASE
 
 
 
-### 👨‍💻 Author
+### Author
 
 Jayachandra
 
----
-
-# ⭐ If you like this project, please star the repository!
