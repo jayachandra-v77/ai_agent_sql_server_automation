@@ -25,9 +25,8 @@ Instead of writing SQL queries manually, you can ask questions in plain English,
 
 ---
 
-# 📁 Project Structure
+###  Project Structure
 
-```
 AI_SQL_AUTOMATION/
 │
 ├── main.py
@@ -61,17 +60,13 @@ You can ask questions like:
 * ODBC Driver 17 for SQL Server
 * OpenAI API Key
 
----
 
-# 📸 Example Output
+### Example Output
 
-```
 Please ask your question: list all tables
 
 Answer:
 Customers, Orders, Products
-
-```
 
 AWS-CICD-Deployment-with-Github-Actions
 
@@ -97,7 +92,7 @@ AWS-CICD-Deployment-with-Github-Actions
 
 5. Lauch your docker image in EC2
 
-#Policy:
+### Policy:
 
 1. AmazonEC2ContainerRegistryFullAccess
 
@@ -107,7 +102,7 @@ AWS-CICD-Deployment-with-Github-Actions
 4. Create EC2 machine (Ubuntu)
 5. Open EC2 and Install docker in EC2 Machine:
 
-#optinal
+### optinal
 
 sudo apt-get update -y
 
@@ -140,7 +135,7 @@ DATABASE
 
 
 
-# 👨‍💻 Author
+### 👨‍💻 Author
 
 Jayachandra
 
